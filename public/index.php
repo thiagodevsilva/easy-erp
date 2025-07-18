@@ -50,6 +50,14 @@ switch ($uri) {
     case '/cupons':
         (new CouponController())->index();
         break;
+    
+    case '/cupons/criar':
+        (new CouponController())->store();
+        break;
+    
+    case '/cupons/deletar':
+        (new CouponController())->destroy();
+        break;
 
     case '/webhook':
         (new WebhookController())->handle();
