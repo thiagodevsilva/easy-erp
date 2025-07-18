@@ -88,6 +88,10 @@ switch ($uri) {
         (new WebhookController())->handle();
         break;
 
+    case '/checkout':
+        (new CartController())->checkout();
+        break;
+
     default:
         http_response_code(404);
         echo "Página não encontrada!";

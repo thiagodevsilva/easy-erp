@@ -179,4 +179,31 @@ class CartController
         $_SESSION['mensagem'] = "Cupom removido.";
         header("Location: /carrinho");
     }
+
+    /**
+     * Exibe a tela de finalização do pedido (Checkout).
+     *
+     * - Mostra o resumo do carrinho (subtotal, frete, desconto e total final).
+     * - Exibe o formulário para dados do cliente (nome, e-mail, endereço).
+     * - Integra com a API do ViaCEP para preencher automaticamente endereço pelo CEP.
+     *
+     * @return void
+     */
+    public function checkout(): void
+    {
+        $items = $_SESSION['carrinho'] ?? [];
+
+        $subtotal = 0;
+        foreach ($items as $item) {
+            $subtotal += $item['preco'] * $item['quantidade'];
+        }
+
+        $frete = $this->calcularFrete($subtotal);
+        $desconto = !empty($_SESSION['cupom_aplicado']) ? $_SESSION['cupom_aplicado']['desconto'] : 0;
+
+        $total = max(0, $subtotal + $frete - $desconto);
+
+        include __DIR__ . '/../views/checkout.php';
+    }
+
 }
