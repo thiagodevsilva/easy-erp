@@ -46,19 +46,55 @@ class ProductController
         header("Location: /produtos");
     }
 
-    /**
-     * Atualiza produto.
-     */
+    public function edit(): void
+    {
+        $id = (int) $_GET['id'];
+        $produto = $this->model->find($id);
+
+        if (!$produto) {
+            http_response_code(404);
+            echo "Produto não encontrado.";
+            return;
+        }
+
+        include __DIR__ . '/../views/products_edit.php';
+    }
+
     public function update(): void
     {
         $id = (int) $_POST['id'];
-        $nome = $_POST['nome'] ?? '';
-        $preco = (float) ($_POST['preco'] ?? 0);
-        $quantidade = (int) ($_POST['quantidade'] ?? 0);
-        $variacao = $_POST['variacao'] ?? null;
+        $nome = $_POST['nome'];
+        $preco = (float) $_POST['preco'];
 
-        $this->model->update($id, $nome, $preco, $quantidade, $variacao);
+        $this->model->updateProduct($id, $nome, $preco);
+
+        // Atualiza variações existentes
+        if (isset($_POST['variacao_id'])) {
+            foreach ($_POST['variacao_id'] as $i => $vid) {
+                $variacao = $_POST['variacao'][$i] ?? 'Padrão';
+                $quantidade = (int) ($_POST['quantidade'][$i] ?? 0);
+                $this->model->updateVariation((int) $vid, $variacao, $quantidade);
+            }
+        }
+
+        // Adiciona novas variações (se houver)
+        if (isset($_POST['nova_variacao'])) {
+            foreach ($_POST['nova_variacao'] as $i => $nv) {
+                $novaQuantidade = (int) ($_POST['nova_quantidade'][$i] ?? 0);
+                if (trim($nv) !== '') {
+                    $this->model->addVariation($id, $nv, $novaQuantidade);
+                }
+            }
+        }
+
         header("Location: /produtos");
+    }
+
+    public function deleteVariation(): void
+    {
+        $vid = (int) $_GET['vid'];
+        $this->model->deleteVariation($vid);
+        header("Location: " . $_SERVER['HTTP_REFERER']);
     }
 
     /**

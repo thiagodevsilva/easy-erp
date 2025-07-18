@@ -70,7 +70,8 @@ document.querySelector('#variacoes').addEventListener('click', function(e) {
                     <?php endforeach; ?>
                 </td>
                 <td>
-                    <a href="/produtos/deletar?id=<?= $p['id'] ?>" class="btn btn-danger btn-sm">Excluir</a>
+                <a href="/produtos/editar?id=<?= $p['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
+                <a href="/produtos/deletar?id=<?= $p['id'] ?>" class="btn btn-danger btn-sm" onclick="return confirm('Tem certeza que deseja excluir este produto?')">Excluir</a>
                 </td>
             </tr>
         <?php endforeach; ?>

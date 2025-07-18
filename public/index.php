@@ -23,8 +23,20 @@ switch ($uri) {
         (new ProductController())->store();
         break;
     
-    case '/produtos/editar':
+    case '/produtos/atualizar':
         (new ProductController())->update();
+        break;
+
+    case '/produtos/editar':
+        (new ProductController())->edit();
+        break;
+    
+    case '/produtos/atualizar':
+        (new ProductController())->update();
+        break;
+    
+    case '/produtos/remover-variacao':
+        (new ProductController())->deleteVariation();
         break;
     
     case '/produtos/deletar':

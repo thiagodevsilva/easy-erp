@@ -94,6 +94,70 @@ class Product
         }
     }
 
+    public function find(int $id): ?array
+    {
+        $pdo = Database::getConnection();
+        $sql = "SELECT p.id as produto_id, p.nome, p.preco, p.criado_em,
+                    e.id as estoque_id, e.variacao, e.quantidade
+                FROM produtos p
+                LEFT JOIN estoque e ON e.produto_id = p.id
+                WHERE p.id = ?";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([$id]);
+        $rows = $stmt->fetchAll();
+
+        if (!$rows) {
+            return null;
+        }
+
+        $produto = [
+            'id' => $rows[0]['produto_id'],
+            'nome' => $rows[0]['nome'],
+            'preco' => $rows[0]['preco'],
+            'variacoes' => []
+        ];
+
+        foreach ($rows as $row) {
+            if ($row['estoque_id']) {
+                $produto['variacoes'][] = [
+                    'estoque_id' => $row['estoque_id'],
+                    'variacao' => $row['variacao'],
+                    'quantidade' => $row['quantidade']
+                ];
+            }
+        }
+
+        return $produto;
+    }
+
+    public function updateProduct(int $id, string $nome, float $preco): bool
+    {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("UPDATE produtos SET nome = ?, preco = ? WHERE id = ?");
+        return $stmt->execute([$nome, $preco, $id]);
+    }
+
+    public function updateVariation(int $estoqueId, string $variacao, int $quantidade): bool
+    {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("UPDATE estoque SET variacao = ?, quantidade = ? WHERE id = ?");
+        return $stmt->execute([$variacao, $quantidade, $estoqueId]);
+    }
+
+    public function addVariation(int $produtoId, string $variacao, int $quantidade): bool
+    {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("INSERT INTO estoque (produto_id, variacao, quantidade) VALUES (?, ?, ?)");
+        return $stmt->execute([$produtoId, $variacao, $quantidade]);
+    }
+
+    public function deleteVariation(int $estoqueId): bool
+    {
+        $pdo = Database::getConnection();
+        $stmt = $pdo->prepare("DELETE FROM estoque WHERE id = ?");
+        return $stmt->execute([$estoqueId]);
+    }
+
     /**
      * Exclui o produto e o estoque vinculado.
      */
