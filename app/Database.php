@@ -23,7 +23,7 @@ class Database
             $host = 'localhost';
             $db   = 'easy_erp';
             $user = 'root';
-            $pass = '';
+            $pass = 'Thiago@2022';
             $charset = 'utf8mb4';
 
             $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

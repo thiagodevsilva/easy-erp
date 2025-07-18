@@ -12,11 +12,23 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Roteamento básico
 switch ($uri) {
     case '/':
-        echo "Mini ERP - Home";
+        echo "Easy ERP - Home";
         break;
 
     case '/produtos':
         (new ProductController())->index();
+        break;
+
+    case '/produtos/criar':
+        (new ProductController())->store();
+        break;
+    
+    case '/produtos/editar':
+        (new ProductController())->update();
+        break;
+    
+    case '/produtos/deletar':
+        (new ProductController())->destroy();
         break;
 
     case '/pedidos':

@@ -5,7 +5,7 @@
     "license": "proprietary",
     "autoload": {
         "psr-4": {
-            "Thiago\\EasyErp\\": "app/"
+            "App\\": "app/"
         }
     },
     "authors": [

@@ -12,10 +12,10 @@ use PDOException;
 $host = 'localhost';
 $user = 'root';
 $pass = 'Thiago@2022';
-$dbName = 'mini_erp';
+$dbName = 'easy_erp';
 
 try {
-    // Conexão inicial (sem DB)
+    // Conexão inicial
     $pdo = new PDO("mysql:host=$host;charset=utf8mb4", $user, $pass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
     ]);
