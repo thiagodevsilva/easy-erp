@@ -5,6 +5,7 @@ use App\Controllers\ProductController;
 use App\Controllers\OrderController;
 use App\Controllers\CouponController;
 use App\Controllers\WebhookController;
+use App\Controllers\CartController;
 
 // Obter a URI atual
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
@@ -57,6 +58,22 @@ switch ($uri) {
     
     case '/cupons/deletar':
         (new CouponController())->destroy();
+        break;
+
+    case '/carrinho':
+        (new CartController())->index();
+        break;
+    
+    case '/carrinho/adicionar':
+        (new CartController())->add();
+        break;
+    
+    case '/carrinho/atualizar':
+        (new CartController())->update();
+        break;
+    
+    case '/carrinho/remover':
+        (new CartController())->remove();
         break;
 
     case '/webhook':

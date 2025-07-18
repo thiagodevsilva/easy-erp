@@ -65,9 +65,24 @@ document.querySelector('#variacoes').addEventListener('click', function(e) {
                 <td><?= htmlspecialchars($p['nome']) ?></td>
                 <td>R$ <?= number_format($p['preco'], 2, ',', '.') ?></td>
                 <td>
-                    <?php foreach ($p['variacoes'] as $v): ?>
-                        <?= htmlspecialchars($v['variacao']) ?> (<?= $v['quantidade'] ?>)<br>
-                    <?php endforeach; ?>
+                <?php foreach ($p['variacoes'] as $v): ?>
+                    <div class="mb-2">
+                        <?= htmlspecialchars($v['variacao']) ?> - 
+                        <strong><?= $v['quantidade'] ?> em estoque</strong>
+                        <?php if ($v['quantidade'] > 0): ?>
+                            <form method="post" action="/carrinho/adicionar" class="d-inline ms-2">
+                                <input type="hidden" name="produto_id" value="<?= $p['id'] ?>">
+                                <input type="hidden" name="variacao" value="<?= $v['variacao'] ?>">
+                                <input type="hidden" name="quantidade" value="1">
+                                <button type="submit" class="btn btn-sm btn-primary">
+                                    Comprar
+                                </button>
+                            </form>
+                        <?php else: ?>
+                            <span class="badge bg-danger ms-2">Esgotado</span>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
                 </td>
                 <td>
                 <a href="/produtos/editar?id=<?= $p['id'] ?>" class="btn btn-primary btn-sm">Editar</a>
