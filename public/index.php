@@ -76,6 +76,14 @@ switch ($uri) {
         (new CartController())->remove();
         break;
 
+    case '/carrinho/aplicar-cupom':
+        (new CartController())->aplicarCupom();
+        break;
+    
+    case '/carrinho/remover-cupom':
+        (new CartController())->removerCupom();
+        break;
+
     case '/webhook':
         (new WebhookController())->handle();
         break;

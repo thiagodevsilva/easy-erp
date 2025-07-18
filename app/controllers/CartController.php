@@ -20,11 +20,32 @@ class CartController
     }
 
     /**
-     * Exibe o carrinho.
+     * Exibe o carrinho com subtotal, frete, desconto e total calculados.
      */
     public function index(): void
     {
         $items = $_SESSION['carrinho'];
+
+        $subtotal = 0;
+        foreach ($items as $item) {
+            $subtotal += $item['preco'] * $item['quantidade'];
+        }
+
+        $frete = $this->calcularFrete($subtotal);
+
+        $desconto = !empty($_SESSION['cupom_aplicado'])
+            ? $_SESSION['cupom_aplicado']['desconto']
+            : 0;
+
+        $valorFinal = max(0, $subtotal + $frete - $desconto);
+
+        // Garante que as variáveis existem mesmo com carrinho vazio
+        $items = $items ?? [];
+        $subtotal = $subtotal ?? 0;
+        $frete = $frete ?? 0;
+        $desconto = $desconto ?? 0;
+        $valorFinal = $valorFinal ?? 0;
+
         include __DIR__ . '/../views/cart.php';
     }
 
@@ -42,12 +63,11 @@ class CartController
             exit;
         }
 
-        // Verifica se item já está no carrinho
         $key = $produtoId . '-' . $variacao;
+
         if (isset($_SESSION['carrinho'][$key])) {
             $_SESSION['carrinho'][$key]['quantidade'] += $quantidade;
         } else {
-            // Busca detalhes do produto
             $pdo = Database::getConnection();
             $sql = "SELECT p.id, p.nome, p.preco, e.variacao 
                     FROM produtos p
@@ -72,17 +92,17 @@ class CartController
     }
 
     /**
-     * Atualiza quantidade de um item.
+     * Atualiza as quantidades dos itens no carrinho.
      */
     public function update(): void
     {
-        $key = $_POST['key'] ?? '';
-        $quantidade = max(1, (int) ($_POST['quantidade'] ?? 1));
-
-        if (isset($_SESSION['carrinho'][$key])) {
-            $_SESSION['carrinho'][$key]['quantidade'] = $quantidade;
+        if (!empty($_POST['quantidade'])) {
+            foreach ($_POST['quantidade'] as $key => $qtd) {
+                if (isset($_SESSION['carrinho'][$key])) {
+                    $_SESSION['carrinho'][$key]['quantidade'] = max(1, (int) $qtd);
+                }
+            }
         }
-
         header("Location: /carrinho");
     }
 
@@ -93,6 +113,70 @@ class CartController
     {
         $key = $_GET['key'] ?? '';
         unset($_SESSION['carrinho'][$key]);
+        header("Location: /carrinho");
+    }
+
+    /**
+     * Calcula o frete baseado no subtotal.
+     */
+    private function calcularFrete(float $subtotal): float
+    {
+        if ($subtotal >= 200) {
+            return 0;
+        } elseif ($subtotal >= 52 && $subtotal <= 166.59) {
+            return 15;
+        } else {
+            return 20;
+        }
+    }
+
+    /**
+     * Aplica um cupom de desconto.
+     */
+    public function aplicarCupom(): void
+    {
+        $codigo = strtoupper(trim($_POST['codigo'] ?? ''));
+
+        if (!$codigo) {
+            $_SESSION['mensagem'] = "Informe um código de cupom.";
+            header("Location: /carrinho");
+            return;
+        }
+
+        $pdo = \App\Database::getConnection();
+        $stmt = $pdo->prepare("SELECT * FROM cupons WHERE codigo = ?");
+        $stmt->execute([$codigo]);
+        $cupom = $stmt->fetch();
+
+        $subtotal = 0;
+        foreach ($_SESSION['carrinho'] as $item) {
+            $subtotal += $item['preco'] * $item['quantidade'];
+        }
+
+        if (!$cupom) {
+            $_SESSION['mensagem'] = "Cupom inválido.";
+        } elseif (strtotime($cupom['valido_ate']) < time()) {
+            $_SESSION['mensagem'] = "Cupom expirado.";
+        } elseif ($subtotal < $cupom['minimo']) {
+            $_SESSION['mensagem'] = "Subtotal insuficiente para este cupom.";
+        } else {
+            $_SESSION['cupom_aplicado'] = [
+                'codigo' => $cupom['codigo'],
+                'desconto' => $cupom['desconto']
+            ];
+            $_SESSION['mensagem'] = "Cupom aplicado: {$cupom['codigo']}";
+        }
+
+        header("Location: /carrinho");
+    }
+
+    /**
+     * Remove o cupom aplicado.
+     */
+    public function removerCupom(): void
+    {
+        unset($_SESSION['cupom_aplicado']);
+        $_SESSION['mensagem'] = "Cupom removido.";
         header("Location: /carrinho");
     }
 }
