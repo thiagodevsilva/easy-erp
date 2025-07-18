@@ -9,43 +9,66 @@
 
 <h1>Produtos</h1>
 
-<form method="post" action="/produtos/criar" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <input type="text" name="nome" class="form-control" placeholder="Nome" required>
+<form method="post" action="/produtos/criar" class="mb-4">
+    <div class="row mb-2">
+        <div class="col-md-5">
+            <input type="text" name="nome" class="form-control" placeholder="Nome do Produto" required>
+        </div>
+        <div class="col-md-3">
+            <input type="number" step="0.01" name="preco" class="form-control" placeholder="Preço" required>
+        </div>
     </div>
-    <div class="col-md-2">
-        <input type="number" step="0.01" name="preco" class="form-control" placeholder="Preço" required>
+
+    <h5>Variações</h5>
+    <div id="variacoes">
+        <div class="row mb-2">
+            <div class="col-md-5">
+                <input type="text" name="variacao[]" class="form-control" placeholder="Ex.: P, M, G">
+            </div>
+            <div class="col-md-3">
+                <input type="number" name="quantidade[]" class="form-control" placeholder="Quantidade" required>
+            </div>
+            <div class="col-md-2">
+                <button type="button" class="btn btn-secondary add-variacao">+</button>
+            </div>
+        </div>
     </div>
-    <div class="col-md-2">
-        <input type="number" name="quantidade" class="form-control" placeholder="Estoque" required>
-    </div>
-    <div class="col-md-2">
-        <input type="text" name="variacao" class="form-control" placeholder="Variação (opcional)">
-    </div>
-    <div class="col-md-2">
-        <button type="submit" class="btn btn-success w-100">Adicionar</button>
-    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Salvar Produto</button>
 </form>
+
+<script>
+document.querySelector('#variacoes').addEventListener('click', function(e) {
+    if (e.target.classList.contains('add-variacao')) {
+        const row = e.target.closest('.row');
+        const clone = row.cloneNode(true);
+        clone.querySelectorAll('input').forEach(i => i.value = '');
+        row.after(clone);
+    }
+});
+</script>
+
+<hr>
 
 <table class="table table-bordered">
     <thead>
         <tr>
-            <th>ID</th>
-            <th>Nome</th>
+            <th>Produto</th>
             <th>Preço</th>
-            <th>Estoque</th>
-            <th>Variação</th>
+            <th>Variações / Estoque</th>
             <th>Ações</th>
         </tr>
     </thead>
     <tbody>
         <?php foreach ($produtos as $p): ?>
             <tr>
-                <td><?= $p['id'] ?></td>
                 <td><?= htmlspecialchars($p['nome']) ?></td>
                 <td>R$ <?= number_format($p['preco'], 2, ',', '.') ?></td>
-                <td><?= $p['quantidade'] ?></td>
-                <td><?= $p['variacao'] ?: '-' ?></td>
+                <td>
+                    <?php foreach ($p['variacoes'] as $v): ?>
+                        <?= htmlspecialchars($v['variacao']) ?> (<?= $v['quantidade'] ?>)<br>
+                    <?php endforeach; ?>
+                </td>
                 <td>
                     <a href="/produtos/deletar?id=<?= $p['id'] ?>" class="btn btn-danger btn-sm">Excluir</a>
                 </td>

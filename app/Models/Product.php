@@ -15,16 +15,40 @@ class Product
     public function all(): array
     {
         $pdo = Database::getConnection();
-        $sql = "SELECT p.*, e.quantidade, e.variacao 
+        $sql = "SELECT p.id as produto_id, p.nome, p.preco, p.criado_em,
+                    e.id as estoque_id, e.variacao, e.quantidade
                 FROM produtos p
-                LEFT JOIN estoque e ON e.produto_id = p.id";
-        return $pdo->query($sql)->fetchAll();
+                LEFT JOIN estoque e ON e.produto_id = p.id
+                ORDER BY p.id ASC";
+        $rows = $pdo->query($sql)->fetchAll();
+
+        $produtos = [];
+        foreach ($rows as $row) {
+            $id = $row['produto_id'];
+            if (!isset($produtos[$id])) {
+                $produtos[$id] = [
+                    'id' => $id,
+                    'nome' => $row['nome'],
+                    'preco' => $row['preco'],
+                    'criado_em' => $row['criado_em'],
+                    'variacoes' => []
+                ];
+            }
+            if ($row['estoque_id']) {
+                $produtos[$id]['variacoes'][] = [
+                    'estoque_id' => $row['estoque_id'],
+                    'variacao' => $row['variacao'],
+                    'quantidade' => $row['quantidade']
+                ];
+            }
+        }
+        return array_values($produtos);
     }
 
     /**
      * Cria um novo produto e estoque.
      */
-    public function create(string $nome, float $preco, int $quantidade, ?string $variacao = null): bool
+    public function create(string $nome, float $preco, array $variacoes): bool
     {
         $pdo = Database::getConnection();
         $pdo->beginTransaction();
@@ -34,8 +58,10 @@ class Product
             $stmt->execute([$nome, $preco]);
             $produtoId = $pdo->lastInsertId();
 
-            $stmt2 = $pdo->prepare("INSERT INTO estoque (produto_id, variacao, quantidade) VALUES (?, ?, ?)");
-            $stmt2->execute([$produtoId, $variacao, $quantidade]);
+            $stmtEstoque = $pdo->prepare("INSERT INTO estoque (produto_id, variacao, quantidade) VALUES (?, ?, ?)");
+            foreach ($variacoes as $v) {
+                $stmtEstoque->execute([$produtoId, $v['variacao'], $v['quantidade']]);
+            }
 
             $pdo->commit();
             return true;

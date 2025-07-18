@@ -31,10 +31,18 @@ class ProductController
     {
         $nome = $_POST['nome'] ?? '';
         $preco = (float) ($_POST['preco'] ?? 0);
-        $quantidade = (int) ($_POST['quantidade'] ?? 0);
-        $variacao = $_POST['variacao'] ?? null;
 
-        $this->model->create($nome, $preco, $quantidade, $variacao);
+        $variacoes = [];
+        if (isset($_POST['variacao'], $_POST['quantidade'])) {
+            foreach ($_POST['variacao'] as $i => $v) {
+                $variacoes[] = [
+                    'variacao' => $v ?: 'Padrão',
+                    'quantidade' => (int) ($_POST['quantidade'][$i] ?? 0)
+                ];
+            }
+        }
+
+        $this->model->create($nome, $preco, $variacoes);
         header("Location: /produtos");
     }
 
