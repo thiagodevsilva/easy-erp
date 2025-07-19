@@ -3,6 +3,7 @@ namespace App\Controllers;
 
 use App\Database;
 use App\Models\Pedido;
+use App\Helpers\Mailer;
 
 /**
  * Controller para gerenciar o Carrinho de Compras.
@@ -274,6 +275,35 @@ class CartController
             unset($_SESSION['cupom_aplicado']);
             $_SESSION['mensagem'] = "Pedido #{$pedidoId} criado com sucesso!";
             header("Location: /produtos");
+
+            if ($pedidoId) {
+                // Monta corpo do e-mail
+                $itensLista = '';
+                foreach ($items as $item) {
+                    $itensLista .= "<li>{$item['nome']} ({$item['variacao']}) - {$item['quantidade']} x R$ " .
+                                    number_format($item['preco'], 2, ',', '.') . "</li>";
+                }
+            
+                $mensagem = "
+                    <h2>Obrigado pelo seu pedido!</h2>
+                    <p>Seu pedido <strong>#{$pedidoId}</strong> foi recebido com sucesso.</p>
+                    <p><strong>Itens:</strong></p>
+                    <ul>{$itensLista}</ul>
+                    <p><strong>Total:</strong> R$ " . number_format($total, 2, ',', '.') . "</p>
+                    <p><strong>Endereço de entrega:</strong> {$cliente['rua']}, {$cliente['numero']} - {$cliente['bairro']} - {$cliente['cidade']}/{$cliente['estado']} - CEP {$cliente['cep']}</p>
+                ";
+            
+                $mailer = new Mailer();
+                $mailer->enviar($cliente['email'], "Confirmação do Pedido #{$pedidoId}", $mensagem);
+            
+                $_SESSION['carrinho'] = [];
+                unset($_SESSION['cupom_aplicado']);
+                $_SESSION['mensagem'] = "Pedido #{$pedidoId} criado com sucesso! Um e-mail foi enviado.";
+                header("Location: /produtos");
+            } else {
+                $_SESSION['mensagem'] = "Erro ao salvar o pedido. Tente novamente.";
+                header("Location: /checkout");
+            }
         } else {
             $_SESSION['mensagem'] = "Erro ao salvar o pedido. Tente novamente.";
             header("Location: /checkout");

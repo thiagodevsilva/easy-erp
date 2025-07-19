@@ -14,5 +14,7 @@
             "email": "thiago.silva@simova.com.br"
         }
     ],
-    "require": {}
+    "require": {
+        "phpmailer/phpmailer": "^6.10"
+    }
 }
