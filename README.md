@@ -6,6 +6,7 @@ Este projeto é um **mini ERP** desenvolvido em **PHP Puro (MVC)** com **Bootstr
 - Pedidos (com frete dinâmico e cupons)
 - Carrinho de compras (com sessão)
 - Cupons de desconto
+- Perfil do usuário (nome, e-mail e foto salvos em sessão)
 - Envio de e-mail de confirmação via SMTP (PHPMailer)
 
 ---
@@ -71,10 +72,22 @@ Este projeto é um **mini ERP** desenvolvido em **PHP Puro (MVC)** com **Bootstr
 - `POST /carrinho/aplicar-cupom` - Aplica cupom
 - `GET /carrinho/remover-cupom` - Remove cupom aplicado
 
-### Checkout e Pedidos
+### Checkout
 - `GET /checkout` - Tela para dados do cliente
 - `POST /checkout/confirmar` - Tela de confirmação do pedido
 - `POST /checkout/finalizar` - Finaliza o pedido (salva no banco e envia e-mail)
+
+### Pedidos (Painel de Gestão)
+- `GET /pedidos` - Lista todos os pedidos com **cores por status**:
+  - **Amarelo** para pendentes,
+  - **Verde** para pagos,
+  - **Cinza** para cancelados.
+- **Filtros disponíveis:**
+  - Por **status** (pendente, pago, cancelado) — **cancelados ficam ocultos por padrão**.
+  - Por **intervalo de datas** ou **data única** (o usuário pode escolher o range).
+
+A tela permite **navegar pelos pedidos rapidamente** e é usada para **monitoramento e gestão de vendas**.
+
 
 ### Cupons
 - `GET /cupons` - Lista cupons
@@ -160,15 +173,18 @@ migrations/
 ---
 
 ## Observações
-- O projeto usa **sessões para o carrinho**.
+- O projeto usa **sessões para o carrinho e perfil do usuário**.
 - **Frete dinâmico**:
   - Subtotal entre R$52,00 e R$166,59 → R$15,00.
   - Subtotal acima de R$200,00 → Grátis.
   - Outros valores → R$20,00.
 - Cupom tem **validade e valor mínimo**.
+- **Pedidos cancelados** ficam ocultos por padrão na listagem, só aparecem se o usuário filtrar explicitamente.
+- **Logout** limpa toda a sessão (perfil + carrinho) e pede confirmação se houver itens no carrinho.
 
 ---
 
 ## Próximos Passos
-- Implementar relatórios de pedidos.
-- Melhorar layout com Bootstrap 5.
+- Melhorar a experiência de usuário com Ajax (carrinho dinâmico).
+- Adicionar relatórios de vendas e métricas.
+- Implementar autenticação real com banco (usuários e senhas).
