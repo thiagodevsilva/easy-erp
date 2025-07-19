@@ -92,6 +92,14 @@ switch ($uri) {
         (new CartController())->checkout();
         break;
 
+    case '/checkout/confirmar':
+        (new CartController())->confirmarCheckout();
+        break;
+    
+    case '/checkout/finalizar':
+        (new CartController())->finalizarPedido();
+        break;
+
     default:
         http_response_code(404);
         echo "Página não encontrada!";

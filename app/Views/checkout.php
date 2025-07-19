@@ -20,7 +20,7 @@
 
 <hr>
 
-<form method="post" action="/checkout/finalizar" id="checkout-form" class="row g-3">
+<form method="post" action="/checkout/confirmar" id="checkout-form" class="row g-3">
     <div class="col-md-6">
         <label class="form-label">Nome</label>
         <input type="text" name="nome" class="form-control" required>

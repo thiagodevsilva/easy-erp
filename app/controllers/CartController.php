@@ -2,6 +2,7 @@
 namespace App\Controllers;
 
 use App\Database;
+use App\Models\Pedido;
 
 /**
  * Controller para gerenciar o Carrinho de Compras.
@@ -206,4 +207,76 @@ class CartController
         include __DIR__ . '/../views/checkout.php';
     }
 
+    public function confirmarCheckout(): void
+    {
+
+        // die('confirmarCheckout foi chamado');
+        $items = $_SESSION['carrinho'] ?? [];
+        if (empty($items)) {
+            header("Location: /carrinho");
+            return;
+        }
+
+        $cliente = [
+            'nome' => $_POST['nome'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'cep' => $_POST['cep'] ?? '',
+            'rua' => $_POST['rua'] ?? '',
+            'numero' => $_POST['numero'] ?? '',
+            'bairro' => $_POST['bairro'] ?? '',
+            'cidade' => $_POST['cidade'] ?? '',
+            'estado' => $_POST['estado'] ?? ''
+        ];
+
+        $subtotal = 0;
+        foreach ($items as $item) {
+            $subtotal += $item['preco'] * $item['quantidade'];
+        }
+        $frete = $this->calcularFrete($subtotal);
+        $desconto = !empty($_SESSION['cupom_aplicado']) ? $_SESSION['cupom_aplicado']['desconto'] : 0;
+        $total = max(0, $subtotal + $frete - $desconto);
+
+        include __DIR__ . '/../views/checkout_confirm.php';
+    }
+
+    public function finalizarPedido(): void
+    {
+        $items = $_SESSION['carrinho'] ?? [];
+        if (empty($items)) {
+            header("Location: /carrinho");
+            return;
+        }
+
+        $cliente = [
+            'nome' => $_POST['nome'] ?? '',
+            'email' => $_POST['email'] ?? '',
+            'cep' => $_POST['cep'] ?? '',
+            'rua' => $_POST['rua'] ?? '',
+            'numero' => $_POST['numero'] ?? '',
+            'bairro' => $_POST['bairro'] ?? '',
+            'cidade' => $_POST['cidade'] ?? '',
+            'estado' => $_POST['estado'] ?? ''
+        ];
+
+        $subtotal = 0;
+        foreach ($items as $item) {
+            $subtotal += $item['preco'] * $item['quantidade'];
+        }
+        $frete = $this->calcularFrete($subtotal);
+        $desconto = !empty($_SESSION['cupom_aplicado']) ? $_SESSION['cupom_aplicado']['desconto'] : 0;
+        $total = max(0, $subtotal + $frete - $desconto);
+
+        $pedido = new Pedido();
+        $pedidoId = $pedido->criar($cliente, compact('subtotal','frete','desconto','total'), $items);
+
+        if ($pedidoId) {
+            $_SESSION['carrinho'] = [];
+            unset($_SESSION['cupom_aplicado']);
+            $_SESSION['mensagem'] = "Pedido #{$pedidoId} criado com sucesso!";
+            header("Location: /produtos");
+        } else {
+            $_SESSION['mensagem'] = "Erro ao salvar o pedido. Tente novamente.";
+            header("Location: /checkout");
+        }
+    }
 }
