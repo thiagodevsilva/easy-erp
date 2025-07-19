@@ -8,6 +8,36 @@ ob_start();
 <?php if (empty($pedidos)): ?>
     <p>Nenhum pedido encontrado.</p>
 <?php else: ?>
+
+    <form method="get" action="/pedidos" class="row mb-4 g-3 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="">Todos</option>
+                <option value="pendente" <?= ($_GET['status'] ?? '') === 'pendente' ? 'selected' : '' ?>>Pendente</option>
+                <option value="pago" <?= ($_GET['status'] ?? '') === 'pago' ? 'selected' : '' ?>>Pago</option>
+                <option value="cancelado" <?= ($_GET['status'] ?? '') === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Data Inicial</label>
+            <input type="date" name="data_inicio" class="form-control"
+                value="<?= htmlspecialchars($_GET['data_inicio'] ?? '') ?>">
+        </div>
+
+        <div class="col-md-3">
+            <label class="form-label">Data Final</label>
+            <input type="date" name="data_fim" class="form-control"
+                value="<?= htmlspecialchars($_GET['data_fim'] ?? '') ?>">
+        </div>
+
+        <div class="col-md-3">
+            <button type="submit" class="btn btn-primary w-100">Filtrar</button>
+        </div>
+    </form>
+
+
     <div class="table-responsive">
         <table class="table table-striped">
             <thead>
@@ -51,6 +81,22 @@ ob_start();
             </tbody>
         </table>
     </div>
+
+    <?php if ($totalPaginas > 1): ?>
+        <nav>
+            <ul class="pagination">
+                <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                    <li class="page-item <?= $i === (int)($_GET['pagina'] ?? 1) ? 'active' : '' ?>">
+                        <a class="page-link"
+                        href="/pedidos?pagina=<?= $i ?>&status=<?= urlencode($_GET['status'] ?? '') ?>&data_inicio=<?= urlencode($_GET['data_inicio'] ?? '') ?>&data_fim=<?= urlencode($_GET['data_fim'] ?? '') ?>">
+                            <?= $i ?>
+                        </a>
+                    </li>
+                <?php endfor; ?>
+            </ul>
+        </nav>
+    <?php endif; ?>
+    
 <?php endif; ?>
 
 <?php
