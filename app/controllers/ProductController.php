@@ -20,7 +20,13 @@ class ProductController
      */
     public function index(): void
     {
-        $produtos = $this->model->all();
+        $busca = $_GET['busca'] ?? '';
+        $pagina = max(1, (int) ($_GET['pagina'] ?? 1));
+
+        $resultado = $this->model->paginated($busca, $pagina, 5);
+        $produtos = $resultado['produtos'];
+        $totalPaginas = $resultado['totalPaginas'];
+
         include __DIR__ . '/../views/products.php';
     }
 

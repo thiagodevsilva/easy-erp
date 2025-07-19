@@ -167,4 +167,69 @@ class Product
         $stmt = $pdo->prepare("DELETE FROM produtos WHERE id = ?");
         return $stmt->execute([$id]);
     }
+
+    /**
+     * Retorna o filtro e o total de páginas
+     *
+     * @param string $busca
+     * @param integer $pagina
+     * @param integer $porPagina
+     * @return array
+     */
+    public function paginated(string $busca = '', int $pagina = 1, int $porPagina = 5): array
+    {
+        $pdo = Database::getConnection();
+
+        $offset = ($pagina - 1) * $porPagina;
+        $params = [];
+        $where = '';
+
+        if (!empty($busca)) {
+            $where = "WHERE p.nome LIKE ?";
+            $params[] = "%{$busca}%";
+        }
+
+        $sql = "SELECT p.id as produto_id, p.nome, p.preco, p.criado_em,
+                    e.id as estoque_id, e.variacao, e.quantidade
+                FROM produtos p
+                LEFT JOIN estoque e ON e.produto_id = p.id
+                {$where}
+                ORDER BY p.id DESC
+                LIMIT {$porPagina} OFFSET {$offset}";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $rows = $stmt->fetchAll();
+
+        $sqlCount = "SELECT COUNT(*) FROM produtos p {$where}";
+        $stmtCount = $pdo->prepare($sqlCount);
+        $stmtCount->execute($params);
+        $totalRegistros = $stmtCount->fetchColumn();
+        $totalPaginas = (int) ceil($totalRegistros / $porPagina);
+
+        $produtos = [];
+        foreach ($rows as $row) {
+            $id = $row['produto_id'];
+            if (!isset($produtos[$id])) {
+                $produtos[$id] = [
+                    'id' => $id,
+                    'nome' => $row['nome'],
+                    'preco' => $row['preco'],
+                    'criado_em' => $row['criado_em'],
+                    'variacoes' => []
+                ];
+            }
+            if ($row['estoque_id']) {
+                $produtos[$id]['variacoes'][] = [
+                    'estoque_id' => $row['estoque_id'],
+                    'variacao' => $row['variacao'],
+                    'quantidade' => $row['quantidade']
+                ];
+            }
+        }
+
+        return [
+            'produtos' => array_values($produtos),
+            'totalPaginas' => $totalPaginas
+        ];
+    }
 }

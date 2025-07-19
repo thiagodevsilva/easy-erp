@@ -46,6 +46,16 @@ document.querySelector('#variacoes').addEventListener('click', function(e) {
 
 <hr>
 
+<form method="get" action="/produtos" class="row mb-4">
+    <div class="col-md-6">
+        <input type="text" name="busca" class="form-control"
+            placeholder="Buscar por nome" value="<?= htmlspecialchars($_GET['busca'] ?? '') ?>">
+    </div>
+    <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </div>
+</form>
+
 <table class="table table-bordered">
     <thead>
         <tr>
@@ -88,6 +98,21 @@ document.querySelector('#variacoes').addEventListener('click', function(e) {
         <?php endforeach; ?>
     </tbody>
 </table>
+
+<?php if ($totalPaginas > 1): ?>
+    <nav>
+        <ul class="pagination">
+            <?php for ($i = 1; $i <= $totalPaginas; $i++): ?>
+                <li class="page-item <?= $i === (int)($_GET['pagina'] ?? 1) ? 'active' : '' ?>">
+                    <a class="page-link" href="/produtos?pagina=<?= $i ?>&busca=<?= urlencode($_GET['busca'] ?? '') ?>">
+                        <?= $i ?>
+                    </a>
+                </li>
+            <?php endfor; ?>
+        </ul>
+    </nav>
+<?php endif; ?>
+
 
 <?php
 $content = ob_get_clean();
