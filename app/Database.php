@@ -3,6 +3,7 @@ namespace App;
 
 use PDO;
 use PDOException;
+use App\Helpers\Env;
 
 /**
  * Class Database
@@ -20,10 +21,10 @@ class Database
     public static function getConnection(): PDO
     {
         if (self::$instance === null) {
-            $host = 'localhost';
-            $db   = 'easy_erp';
-            $user = 'root';
-            $pass = 'Thiago@2022';
+            $host = Env::get('DB_HOST', 'localhost');
+            $db   = Env::get('DB_NAME', 'easy_erp');
+            $user = Env::get('DB_USER', 'root');
+            $pass = Env::get('DB_PASS', '');
             $charset = 'utf8mb4';
 
             $dsn = "mysql:host=$host;dbname=$db;charset=$charset";

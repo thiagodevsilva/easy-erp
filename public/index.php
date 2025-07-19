@@ -1,6 +1,9 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
+use App\Helpers\Env;
+Env::load(__DIR__ . '/../.env');
+
 use App\Controllers\ProductController;
 use App\Controllers\OrderController;
 use App\Controllers\CouponController;

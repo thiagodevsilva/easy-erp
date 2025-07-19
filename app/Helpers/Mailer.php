@@ -15,14 +15,18 @@ class Mailer
     {
         $this->mail = new PHPMailer(true);
 
-        // Configuração SMTP (ajuste conforme seu provedor)
+        $this->mail->CharSet = 'UTF-8';
+        $this->mail->Encoding = 'base64';
+
         $this->mail->isSMTP();
-        $this->mail->Host = 'smtp.gmail.com';
+        $this->mail->Host = Env::get('MAIL_HOST');
         $this->mail->SMTPAuth = true;
-        $this->mail->Username = 'seuemail@gmail.com';
-        $this->mail->Password = 'suasenhaouappkey'; // usar App Password no Gmail
+        $this->mail->Username = Env::get('MAIL_USER');
+        $this->mail->Password = Env::get('MAIL_PASS');
         $this->mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $this->mail->Port = 587;
+        $this->mail->Port = (int)Env::get('MAIL_PORT');
+
+        $this->mail->setFrom(Env::get('MAIL_FROM'), Env::get('MAIL_FROM_NAME', 'Easy ERP'));
 
         $this->mail->setFrom('seuemail@gmail.com', 'Easy ERP');
     }
