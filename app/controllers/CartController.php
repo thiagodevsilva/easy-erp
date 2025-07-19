@@ -195,6 +195,12 @@ class CartController
     {
         $items = $_SESSION['carrinho'] ?? [];
 
+        if (empty($items)) {
+            $_SESSION['mensagem'] = "Adicione itens ao carrinho antes de finalizar.";
+            header("Location: /carrinho");
+            exit;
+        }
+
         $subtotal = 0;
         foreach ($items as $item) {
             $subtotal += $item['preco'] * $item['quantidade'];

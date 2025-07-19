@@ -16,7 +16,7 @@ $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 // Roteamento básico
 switch ($uri) {
     case '/':
-        echo "Easy ERP - Home";
+        include __DIR__ . '/../app/views/home.php';
         break;
 
     case '/produtos':
