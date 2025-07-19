@@ -23,10 +23,14 @@ class Order
         $where = [];
         $params = [];
 
-        if (!empty($status)) {
+        if ($status === 'todos') {
+        } elseif ($status === 'not_cancelled') {
+            $where[] = "status != 'cancelado'";
+        } elseif (!empty($status)) {
             $where[] = "status = ?";
             $params[] = $status;
         }
+
         if (!empty($dataInicio) && !empty($dataFim)) {
             $where[] = "DATE(criado_em) BETWEEN ? AND ?";
             $params[] = $dataInicio;

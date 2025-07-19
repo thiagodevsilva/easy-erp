@@ -19,6 +19,12 @@ class OrderController
         $dataFim = $_GET['data_fim'] ?? null;
         $pagina = max(1, (int) ($_GET['pagina'] ?? 1));
 
+        $defaultSemCancelados = false;
+        if ($status === null || $status === '') {
+            $status = 'not_cancelled';
+            $defaultSemCancelados = true;
+        }
+
         $resultado = $this->model->paginated($status, $dataInicio, $dataFim, $pagina, 10);
         $pedidos = $resultado['pedidos'];
         $totalPaginas = $resultado['totalPaginas'];

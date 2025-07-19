@@ -13,10 +13,11 @@ ob_start();
         <div class="col-md-3">
             <label class="form-label">Status</label>
             <select name="status" class="form-select">
-                <option value="">Todos</option>
+                <option value="" <?= (!isset($_GET['status']) || $_GET['status'] === 'not_cancelled') ? 'selected' : '' ?>></option>
                 <option value="pendente" <?= ($_GET['status'] ?? '') === 'pendente' ? 'selected' : '' ?>>Pendente</option>
                 <option value="pago" <?= ($_GET['status'] ?? '') === 'pago' ? 'selected' : '' ?>>Pago</option>
                 <option value="cancelado" <?= ($_GET['status'] ?? '') === 'cancelado' ? 'selected' : '' ?>>Cancelado</option>
+                <option value="todos" <?= ($_GET['status'] ?? '') === 'todos' ? 'selected' : '' ?>>Todos</option>
             </select>
         </div>
 
