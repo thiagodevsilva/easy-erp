@@ -9,7 +9,7 @@
             <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
             <li class="nav-item"><a class="nav-link" href="/produtos">Produtos</a></li>
             <li class="nav-item"><a class="nav-link" href="/cupons">Cupons</a></li>
-            <li class="nav-item"><a class="nav-link" href="/checkout">Checkout</a></li>
+            <li class="nav-item"><a class="nav-link" href="/pedidos">Pedidos</a></li>
         </ul>
 
         <ul class="navbar-nav ms-auto">
