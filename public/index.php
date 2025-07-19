@@ -9,11 +9,10 @@ use App\Controllers\OrderController;
 use App\Controllers\CouponController;
 use App\Controllers\WebhookController;
 use App\Controllers\CartController;
+use App\Controllers\UserController;
 
-// Obter a URI atual
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-// Roteamento básico
 switch ($uri) {
     case '/':
         include __DIR__ . '/../app/views/home.php';
@@ -102,6 +101,16 @@ switch ($uri) {
     case '/checkout/finalizar':
         (new CartController())->finalizarPedido();
         break;
+
+    case '/perfil/salvar':
+        (new UserController())->salvarPerfil();
+        break;
+    
+    case '/logout':
+        session_start();
+        session_destroy();
+        header("Location: /");
+        exit;
 
     default:
         http_response_code(404);
